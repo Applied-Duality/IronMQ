@@ -1,4 +1,4 @@
 IronMQ
 ======
 
-IronMQ bindings for .NET
+IronMQ bindings for .NET in C#
