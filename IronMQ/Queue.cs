@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using System.Json;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace System.Reactive.IronMQ
@@ -18,9 +19,9 @@ namespace System.Reactive.IronMQ
     /// </summary>
     public struct Queue
     {
-        Client _client;
+        HttpClient _client;
 
-        internal Queue(Client client, string name):this()
+        internal Queue(HttpClient client, string name):this()
         {
             _client = client;
             Name = name;

@@ -13,12 +13,15 @@ using System.Threading.Tasks;
 
 namespace System.Reactive.IronMQ
 {
-    public class Client : HttpClient
+    public class Client 
     {
+        HttpClient _client;
+
         public Client(string applicationID, string oauthToken, Cloud cloud = Cloud.AWS) : base()
         {
-            this.BaseAddress = new Uri(string.Format("https://{0}.iron.io/1/projects/{1}/", cloud.toString(), applicationID));
-            this.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("OAuth", oauthToken) ;
+            _client = new HttpClient();
+            _client.BaseAddress = new Uri(string.Format("https://{0}.iron.io/1/projects/{1}/", cloud.toString(), applicationID));
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("OAuth", oauthToken);
         }
 
         /// <summary>
@@ -29,8 +32,8 @@ namespace System.Reactive.IronMQ
         {
             if (string.IsNullOrWhiteSpace(name)) name = Guid.NewGuid().ToString();
             var content = new JsonContent("{}");
-            var response = await this.PostAsync(string.Format("queues/{0}", name), content);
-            return new Queue(this, name);
+            var response = await _client.PostAsync(string.Format("queues/{0}", name), content);
+            return new Queue(this._client, name);
         }
 
         /// <summary>
@@ -44,9 +47,9 @@ namespace System.Reactive.IronMQ
             {
                 var page = startPage;
             Next:
-                var response = await this.GetStringAsync(string.Format("queues?page={0}", page++));
+                var response = await _client.GetStringAsync(string.Format("queues?page={0}", page++));
                 var array = JsonArray.Parse(response) as JsonArray;
-                foreach (var info in array) observer.OnNext(new Queue(this, new _QueueInfo(info).Name));
+                foreach (var info in array) observer.OnNext(new Queue(this._client, new _QueueInfo(info).Name));
                 if (array.Count == pageSize && !cancel.IsCancellationRequested) goto Next;
                 observer.OnCompleted();
             });
